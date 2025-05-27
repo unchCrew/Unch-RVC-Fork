@@ -1,52 +1,54 @@
-# Terms of Use
+# Terms of Use for Unch-RVC-Fork
 
-## Responsibilities of the User
+Welcome to Unch-RVC-Fork, an open-source voice conversion tool hosted at [https://github.com/unchCrew/Unch-RVC-Fork](https://github.com/unchCrew/Unch-RVC-Fork). By accessing, downloading, or using Unch-RVC-Fork, you agree to comply with and be bound by the following Terms of Use. Please read these terms carefully.
 
-By using Applio, you agree to the following responsibilities:
+## 1. User Responsibilities
 
-### 1. Respect Intellectual Property and Privacy Rights
+As a user of Unch-RVC-Fork, you agree to the following obligations:
 
-- Ensure that any audio or material processed through Applio is either owned by you or used with explicit permission from the rightful owner.
-- Respect copyrights, intellectual property rights, and privacy rights of all individuals and entities.
+### 1.1 Respect for Intellectual Property and Privacy
+- Use only audio, data, or materials that you own or have explicit permission to use.
+- Comply with all applicable intellectual property laws, including copyrights, trademarks, and privacy rights of individuals and entities.
 
-### 2. Avoid Harmful or Unethical Use
+### 1.2 Ethical and Lawful Use
+- Do not use Unch-RVC-Fork to create, process, or distribute content that is harmful, defamatory, deceptive, or infringes on the rights of others.
+- Refrain from using the tool to promote hate speech, discrimination, or illegal activities.
 
-- Do not use Applio to create or distribute content that harms, defames, or infringes upon the rights of others.
-- Avoid any activities that may violate ethical standards, promote hate speech, or facilitate illegal conduct.
+### 1.3 Compliance with Applicable Laws
+- Ensure your use of Unch-RVC-Fork adheres to all relevant local, national, and international laws and regulations, including those governing AI, voice conversion technologies, and data privacy.
 
-### 3. Adhere to Local Laws and Regulations
+## 2. Permitted Uses
 
-- Familiarize yourself with and comply with the laws and regulations governing the use of AI, voice transformation tools, and generated content in your jurisdiction.
+Unch-RVC-Fork is intended for the following purposes, provided they are conducted ethically and legally:
+- **Personal Projects**: Creative experimentation and non-commercial personal use.
+- **Academic Research**: Use in educational or research contexts to advance knowledge, adhering to ethical standards.
+- **Investigative Purposes**: Lawful and ethical analysis of audio or data.
+- **Commercial Use**: Creation of content for commercial purposes, provided you have secured all necessary rights, permissions, and licenses, and comply with applicable laws.
 
-## Disclaimer of Liability
+## 3. Prohibited Activities
 
-Applio and its contributors disclaim all liability for any misuse or unintended consequences arising from the use of this tool.
+The following activities are strictly prohibited:
+- Creating or distributing content intended to deceive, defraud, or harm individuals or entities.
+- Using Unch-RVC-Fork to generate or share audio that violates intellectual property rights or privacy laws.
+- Engaging in any activity that violates ethical standards or applicable laws, including the creation of deepfakes or misleading content for malicious purposes.
 
-- **No Warranty**: Applio is provided "as is" without any warranty, express or implied.
-- **User Responsibility**: You bear full responsibility for how you choose to use Applio and any outcomes resulting from that use.
-- **No Endorsement**: Applio does not endorse or support any activities or content created with this tool that result in harm, illegal activity, or unethical practices.
+## 4. Training Data
 
-## Permitted Use Cases
+Unch-RVC-Fork models are trained on publicly available datasets, such as [VCTK](https://huggingface.co/datasets/IAHispano/Applio-Dataset), which adhere to ethical data usage standards. The project is committed to transparency in its development and encourages users to verify the provenance of any additional datasets they use with the tool.
 
-Applio is designed for:
+## 5. Disclaimer of Liability
 
-- **Personal Projects**: Experimentation and creative endeavors for personal enrichment.
-- **Academic Research**: Advancing scientific understanding and education.
-- **Investigative Purposes**: Analyzing data in lawful and ethical contexts.
-- **Commercial Use**: Creating content for commercial purposes, provided that appropriate rights and permissions are obtained and all legal and ethical standards are adhered to.
+Unch-RVC-Fork is provided "as is" under the terms of its open-source license (see the [GitHub repository](https://github.com/unchCrew/Unch-RVC-Fork) for details). The contributors and maintainers of Unch-RVC-Fork make no warranties and bear no liability for the following:
+- **No Warranty**: The tool is provided without any express or implied warranties, including fitness for a particular purpose or non-infringement.
+- **User Responsibility**: You are solely responsible for your use of Unch-RVC-Fork and any consequences arising from it.
+- **No Endorsement**: The project does not endorse or support any content created with Unch-RVC-Fork that violates these terms, ethical standards, or applicable laws.
 
-## Prohibited Activities
+## 6. Modifications to Terms
 
-The following uses are explicitly prohibited:
+The Unch-RVC-Fork team reserves the right to update or modify these Terms of Use at any time. Changes will be posted on the [GitHub repository](https://github.com/unchCrew/Unch-RVC-Fork). Continued use of Unch-RVC-Fork after any modifications constitutes your acceptance of the updated terms.
 
-- **Harmful Applications**: Generating audio to defame, harm, or manipulate others.
-- **Unauthorized Distribution**: Sharing content that violates copyrights or the rights of others.
-- **Deceptive Practices**: Creating content intended to deceive or defraud others.
+## 7. Contact
 
-## Training Data
+For questions, issues, or contributions related to Unch-RVC-Fork, please refer to the [GitHub repository](https://github.com/unchCrew/Unch-RVC-Fork) or contact the maintainers through the provided channels.
 
-All official models distributed by Applio have been trained under publicly available datasets such as [VCTK](https://huggingface.co/datasets/IAHispano/Applio-Dataset). We strive to maintain transparency and ethical practices in the development and distribution of our tools.
-
-## Amendments
-
-Applio reserves the right to modify these terms at any time. Continued use of the tool signifies your acceptance of any updated terms.
+By using Unch-RVC-Fork, you acknowledge that you have read, understood, and agree to be bound by these Terms of Use.
