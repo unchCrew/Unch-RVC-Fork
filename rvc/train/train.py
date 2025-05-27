@@ -900,24 +900,24 @@ def train_and_evaluate(
 
         # Print training progress
         lowest_value_rounded = float(lowest_value["value"])
-        lowest_value_rounded = round(lowest_value_rounded, 3)
-
-        record = f"{model_name} | epoch={epoch} | step={global_step} | {epoch_recorder.record()}"
-        if epoch > 1:
-            record = (
-                record
-                + f" | lowest_value={lowest_value_rounded} (epoch {lowest_value['epoch']} and step {lowest_value['step']})"
-            )
-
-        if overtraining_detector:
-            remaining_epochs_gen = overtraining_threshold - consecutive_increases_gen
-            remaining_epochs_disc = (
-                overtraining_threshold * 2 - consecutive_increases_disc
-            )
-            record = (
-                record
-                + f" | Number of epochs remaining for overtraining: g/total: {remaining_epochs_gen} d/total: {remaining_epochs_disc} | smoothed_loss_gen={smoothed_value_gen:.3f} | smoothed_loss_disc={smoothed_value_disc:.3f}"
-            )
+        lowest_value_rounded = round(float(lowest_value["value"]), 3)
+        
+        # Add lowest value information if epoch > 1
+    if epoch > 1:
+        record += (
+            f"Lowest Loss: {lowest_value_rounded:<6.3f} "
+            f"(Epoch: {lowest_value['epoch']:>4}, Step: {lowest_value['step']:>7})\n"
+        )
+        # Add overtraining information if enabled
+    if overtraining_detector:
+        remaining_epochs_gen = overtraining_threshold - consecutive_increases_gen
+        remaining_epochs_disc = overtraining_threshold * 2 - consecutive_increases_disc
+        record += (
+            f"{'-'*50}\n"
+            f"Overtraining Status:\n"
+            f"  Generator  | Smoothed Loss: {smoothed_value_gen:.3f} | Epochs Until Overtrain: {remaining_epochs_gen:>3}\n"
+            f"  Discriminator | Smoothed Loss: {smoothed_value_disc:.3f} | Epochs Until Overtrain: {remaining_epochs_disc:>3}\n"
+        )
         print(record)
 
         # Save weights every N epochs
