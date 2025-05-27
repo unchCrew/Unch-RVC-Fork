@@ -10,6 +10,13 @@ import numpy as np
 import soundfile as sf
 import noisereduce as nr
 
+# ANSI color codes for console output
+class Colors:
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    RESET = "\033[0m"
+
 now_dir = os.getcwd()
 sys.path.append(os.getcwd())
 
@@ -34,18 +41,16 @@ class VoiceConverter:
         """
         Initializes the VoiceConverter with default configuration, and sets up models and parameters.
         """
-        self.config = Config()  # Load configuration
-        self.hubert_model = (
-            None  # Initialize the Hubert model (for embedding extraction)
-        )
-        self.last_embedder_model = None  # Last used embedder model
-        self.tgt_sr = None  # Target sampling rate for the output audio
-        self.net_g = None  # Generator network for voice conversion
-        self.vc = None  # Voice conversion pipeline instance
-        self.cpt = None  # Checkpoint for loading model weights
-        self.version = None  # Model version
-        self.n_spk = None  # Number of speakers in the model
-        self.use_f0 = None  # Whether the model uses F0
+        self.config = Config()
+        self.hubert_model = None
+        self.last_embedder_model = None
+        self.tgt_sr = None
+        self.net_g = None
+        self.vc = None
+        self.cpt = None
+        self.version = None
+        self.n_spk = None
+        self.use_f0 = None
         self.loaded_model = None
 
     def load_hubert(self, embedder_model: str, embedder_model_custom: str = None):
@@ -56,9 +61,11 @@ class VoiceConverter:
             embedder_model (str): Path to the pre-trained HuBERT model.
             embedder_model_custom (str): Path to the custom HuBERT model.
         """
+        print(f"{Colors.YELLOW}Loading HuBERT model for speaker embedding...{Colors.RESET}")
         self.hubert_model = load_embedding(embedder_model, embedder_model_custom)
         self.hubert_model = self.hubert_model.to(self.config.device).float()
         self.hubert_model.eval()
+        print(f"{Colors.GREEN}HuBERT model loaded successfully.{Colors.RESET}")
 
     @staticmethod
     def remove_audio_noise(data, sr, reduction_strength=0.7):
@@ -71,12 +78,14 @@ class VoiceConverter:
             reduction_strength (float): Strength of the noise reduction. Default is 0.7.
         """
         try:
+            print(f"{Colors.YELLOW}Applying noise reduction (strength: {reduction_strength})...{Colors.RESET}")
             reduced_noise = nr.reduce_noise(
                 y=data, sr=sr, prop_decrease=reduction_strength
             )
+            print(f"{Colors.GREEN}Noise reduction applied successfully.{Colors.RESET}")
             return reduced_noise
         except Exception as error:
-            print(f"An error occurred removing audio noise: {error}")
+            print(f"{Colors.RED}Error during noise reduction: {error}{Colors.RESET}")
             return None
 
     @staticmethod
@@ -91,7 +100,7 @@ class VoiceConverter:
         """
         try:
             if output_format != "WAV":
-                print(f"Saving audio as {output_format}...")
+                print(f"{Colors.YELLOW}Converting audio to {output_format} format...{Colors.RESET}")
                 audio, sample_rate = librosa.load(input_path, sr=None)
                 common_sample_rates = [
                     8000,
@@ -109,9 +118,10 @@ class VoiceConverter:
                     audio, orig_sr=sample_rate, target_sr=target_sr, res_type="soxr_vhq"
                 )
                 sf.write(output_path, audio, target_sr, format=output_format.lower())
+                print(f"{Colors.GREEN}Audio converted to {output_format} and saved at '{output_path}'.{Colors.RESET}")
             return output_path
         except Exception as error:
-            print(f"An error occurred converting the audio format: {error}")
+            print(f"{Colors.RED}Error converting audio format: {error}{Colors.RESET}")
 
     def convert_audio(
         self,
@@ -165,15 +175,15 @@ class VoiceConverter:
             **kwargs: Additional keyword arguments.
         """
         if not model_path:
-            print("No model path provided. Aborting conversion.")
+            print(f"{Colors.RED}No model path provided. Voice conversion aborted.{Colors.RESET}")
             return
 
         self.get_vc(model_path, sid)
 
         try:
             start_time = time.time()
-            print(f"Converting audio '{audio_input_path}'...")
-
+            print(f"{Colors.YELLOW}Starting voice conversion for '{audio_input_path}'...{Colors.RESET}")
+            print(f"{Colors.YELLOW}Using F0 method: {f0_method} with hop length: {hop_length}{Colors.RESET}")
             audio = load_audio_infer(
                 audio_input_path,
                 16000,
@@ -182,6 +192,7 @@ class VoiceConverter:
             audio_max = np.abs(audio).max() / 0.95
 
             if audio_max > 1:
+                print(f"{Colors.YELLOW}Normalizing audio to prevent clipping...{Colors.RESET}")
                 audio /= audio_max
 
             if not self.hubert_model or embedder_model != self.last_embedder_model:
@@ -201,14 +212,15 @@ class VoiceConverter:
                 self.tgt_sr = resample_sr
 
             if split_audio:
+                print(f"{Colors.YELLOW}Splitting audio for processing...{Colors.RESET}")
                 chunks, intervals = process_audio(audio, 16000)
-                print(f"Audio split into {len(chunks)} chunks for processing.")
+                print(f"{Colors.GREEN}Audio split into {len(chunks)} chunks.{Colors.RESET}")
             else:
-                chunks = []
-                chunks.append(audio)
+                chunks = [audio]
 
             converted_chunks = []
-            for c in chunks:
+            for i, c in enumerate(chunks, 1):
+                print(f"{Colors.YELLOW}Converting chunk {i}/{len(chunks)}...{Colors.RESET}")
                 audio_opt = self.vc.pipeline(
                     model=self.hubert_model,
                     net_g=self.net_g,
@@ -229,9 +241,10 @@ class VoiceConverter:
                 )
                 converted_chunks.append(audio_opt)
                 if split_audio:
-                    print(f"Converted audio chunk {len(converted_chunks)}")
+                    print(f"{Colors.GREEN}Chunk {i}/{len(chunks)} converted successfully.{Colors.RESET}")
 
             if split_audio:
+                print(f"{Colors.YELLOW}Merging {len(converted_chunks)} converted chunks...{Colors.RESET}")
                 audio_opt = merge_audio(
                     chunks, converted_chunks, intervals, 16000, self.tgt_sr
                 )
@@ -239,12 +252,14 @@ class VoiceConverter:
                 audio_opt = converted_chunks[0]
 
             if clean_audio:
+                print(f"{Colors.YELLOW}Cleaning audio with strength {clean_strength}...{Colors.RESET}")
                 cleaned_audio = self.remove_audio_noise(
                     audio_opt, self.tgt_sr, clean_strength
                 )
                 if cleaned_audio is not None:
                     audio_opt = cleaned_audio
 
+            print(f"{Colors.YELLOW}Saving converted audio to '{audio_output_path}'...{Colors.RESET}")
             sf.write(audio_output_path, audio_opt, self.tgt_sr, format="WAV")
             output_path_format = audio_output_path.replace(
                 ".wav", f".{export_format.lower()}"
@@ -255,11 +270,11 @@ class VoiceConverter:
 
             elapsed_time = time.time() - start_time
             print(
-                f"Conversion completed at '{audio_output_path}' in {elapsed_time:.2f} seconds."
+                f"{Colors.GREEN}Voice conversion completed successfully at '{audio_output_path}' in {elapsed_time:.2f} seconds.{Colors.RESET}"
             )
         except Exception as error:
-            print(f"An error occurred during audio conversion: {error}")
-            print(traceback.format_exc())
+            print(f"{Colors.RED}Error during voice conversion: {error}{Colors.RESET}")
+            print(f"{Colors.RED}Traceback: {traceback.format_exc()}{Colors.RESET}")
 
     def convert_audio_batch(
         self,
@@ -284,7 +299,7 @@ class VoiceConverter:
             ) as pid_file:
                 pid_file.write(str(pid))
             start_time = time.time()
-            print(f"Converting audio batch '{audio_input_paths}'...")
+            print(f"{Colors.YELLOW}Starting batch voice conversion for directory '{audio_input_paths}'...{Colors.RESET}")
             audio_files = [
                 f
                 for f in os.listdir(audio_input_paths)
@@ -306,24 +321,26 @@ class VoiceConverter:
                     )
                 )
             ]
-            print(f"Detected {len(audio_files)} audio files for inference.")
-            for a in audio_files:
+            print(f"{Colors.GREEN}Found {len(audio_files)} audio files for processing.{Colors.RESET}")
+            for i, a in enumerate(audio_files, 1):
                 new_input = os.path.join(audio_input_paths, a)
                 new_output = os.path.splitext(a)[0] + "_output.wav"
                 new_output = os.path.join(audio_output_path, new_output)
                 if os.path.exists(new_output):
+                    print(f"{Colors.YELLOW}Skipping '{new_input}' (output already exists).{Colors.RESET}")
                     continue
+                print(f"{Colors.YELLOW}Processing file {i}/{len(audio_files)}: '{new_input}'...{Colors.RESET}")
                 self.convert_audio(
                     audio_input_path=new_input,
                     audio_output_path=new_output,
                     **kwargs,
                 )
-            print(f"Conversion completed at '{audio_input_paths}'.")
+            print(f"{Colors.GREEN}Batch conversion completed for '{audio_input_paths}'.{Colors.RESET}")
             elapsed_time = time.time() - start_time
-            print(f"Batch conversion completed in {elapsed_time:.2f} seconds.")
+            print(f"{Colors.GREEN}Batch processing finished in {elapsed_time:.2f} seconds.{Colors.RESET}")
         except Exception as error:
-            print(f"An error occurred during audio batch conversion: {error}")
-            print(traceback.format_exc())
+            print(f"{Colors.RED}Error during batch conversion: {error}{Colors.RESET}")
+            print(f"{Colors.RED}Traceback: {traceback.format_exc()}{Colors.RESET}")
         finally:
             os.remove(os.path.join(now_dir, "assets", "infer_pid.txt"))
 
@@ -336,21 +353,25 @@ class VoiceConverter:
             sid (int): Speaker ID.
         """
         if sid == "" or sid == []:
+            print(f"{Colors.YELLOW}No speaker ID provided. Cleaning up model...{Colors.RESET}")
             self.cleanup_model()
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
 
         if not self.loaded_model or self.loaded_model != weight_root:
+            print(f"{Colors.YELLOW}Loading voice conversion model from '{weight_root}'...{Colors.RESET}")
             self.load_model(weight_root)
             if self.cpt is not None:
                 self.setup_network()
                 self.setup_vc_instance()
+                print(f"{Colors.GREEN}Voice conversion model loaded successfully.{Colors.RESET}")
             self.loaded_model = weight_root
 
     def cleanup_model(self):
         """
         Cleans up the model and releases resources.
         """
+        print(f"{Colors.YELLOW}Cleaning up model resources...{Colors.RESET}")
         if self.hubert_model is not None:
             del self.net_g, self.n_spk, self.vc, self.hubert_model, self.tgt_sr
             self.hubert_model = self.net_g = self.n_spk = self.vc = self.tgt_sr = None
@@ -361,6 +382,7 @@ class VoiceConverter:
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         self.cpt = None
+        print(f"{Colors.GREEN}Model resources cleaned up.{Colors.RESET}")
 
     def load_model(self, weight_root):
         """
@@ -369,21 +391,28 @@ class VoiceConverter:
         Args:
             weight_root (str): Path to the model weights.
         """
+        print(f"{Colors.YELLOW}Loading model weights from '{weight
+
+_root}'...{Colors.RESET}")
         self.cpt = (
             torch.load(weight_root, map_location="cpu", weights_only=True)
             if os.path.isfile(weight_root)
             else None
         )
+        if self.cpt is None:
+            print(f"{Colors.RED}Failed to load model weights from '{weight_root}'.{Colors.RESET}")
+        else:
+            print(f"{Colors.GREEN}Model weights loaded successfully.{Colors.RESET}")
 
     def setup_network(self):
         """
         Sets up the network configuration based on the loaded checkpoint.
         """
         if self.cpt is not None:
+            print(f"{Colors.YELLOW}Setting up network configuration...{Colors.RESET}")
             self.tgt_sr = self.cpt["config"][-1]
             self.cpt["config"][-3] = self.cpt["weight"]["emb_g.weight"].shape[0]
             self.use_f0 = self.cpt.get("f0", 1)
-
             self.version = self.cpt.get("version", "v1")
             self.text_enc_hidden_dim = 768 if self.version == "v2" else 256
             self.vocoder = self.cpt.get("vocoder", "HiFi-GAN")
@@ -397,11 +426,14 @@ class VoiceConverter:
             self.net_g.load_state_dict(self.cpt["weight"], strict=False)
             self.net_g = self.net_g.to(self.config.device).float()
             self.net_g.eval()
+            print(f"{Colors.GREEN}Network configuration set up successfully.{Colors.RESET}")
 
     def setup_vc_instance(self):
         """
         Sets up the voice conversion pipeline instance based on the target sampling rate and configuration.
         """
         if self.cpt is not None:
+            print(f"{Colors.YELLOW}Setting up voice conversion pipeline...{Colors.RESET}")
             self.vc = VC(self.tgt_sr, self.config)
             self.n_spk = self.cpt["config"][-3]
+            print(f"{Colors.GREEN}Voice conversion pipeline initialized.{Colors.RESET}")
