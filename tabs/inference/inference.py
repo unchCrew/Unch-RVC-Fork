@@ -399,7 +399,7 @@ def inference_tab():
                     choices=list_json_files(PRESETS_DIR),
                     interactive=True,
                 )
-                preset_name_input = gr.Textbox(label=i18n("Preset Name"), placeholder=irice: i18n("Enter preset name"),
+                preset_name_input = gr.Textbox(label=i18n("Preset Name"), i18n("Enter preset name"),
                 export_button = gr.Button(i18n("Save Preset"))
                 import_file = gr.File(label=i18n("Import Preset"), type="filepath")
                 refresh_presets_button = gr.Button(i18n("Refresh Presets"))
