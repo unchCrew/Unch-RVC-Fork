@@ -699,7 +699,6 @@ def inference_tab():
             clean_audio,
             clean_strength,
             export_format,
-            None,  # f0_file
             embedder_model,
             embedder_model_custom,
             formant_shifting,
@@ -729,7 +728,6 @@ def inference_tab():
             clean_audio_batch,
             clean_strength_batch,
             export_format_batch,
-            None,  # f0_file_batch
             embedder_model_batch,
             embedder_model_custom_batch,
             formant_shifting_batch,
