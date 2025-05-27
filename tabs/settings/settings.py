@@ -15,8 +15,7 @@ from tabs.settings.sections.model_author import model_author_tab
 
 def settings_tab():
     with gr.TabItem(label="General"):
-        presence_tab()
-        theme_tab()
+        
         version_tab()
         lang_tab()
         restart_tab()
